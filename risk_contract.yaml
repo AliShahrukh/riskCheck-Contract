@@ -1,0 +1,43 @@
+openapi: 3.0.1
+info:
+  version: 1.0.0
+  title: Risk Contract
+  description: Decision Services for risk
+paths:
+  '/events':
+    post:
+      operationId: decision
+      requestBody:
+        required: true
+        content:
+          'application/json':
+            schema:
+              oneOf:
+                - $ref: './risk_definitions.json#/components/schemas/RequestBeforeAuthentication'
+                - $ref: './risk_definitions.json#/components/schemas/RequestBeforeAuthorisation'
+                - $ref: './risk_definitions.json#/components/schemas/RequestAfterAuthorisation'
+                - $ref: './risk_definitions.json#/components/schemas/RequestAfterAuthentication'
+                - $ref: './risk_definitions.json#/components/schemas/RequestBatch'
+      responses:
+        '200':
+          description: Sync Event Response
+          content:
+            'application/json':
+              schema:
+                oneOf:
+                  - $ref: './risk_definitions.json#/components/schemas/ResponseObject'
+                  - $ref: './risk_definitions.json#/components/schemas/ResponseBatch'
+        '204':
+          description: Async Event Response
+        '400':
+          description: Event Failed to validate against schema
+        '401':
+          description: Unauthorised
+        '409':
+          description: Duplicate
+        '500':
+          description: Error occured
+        '502':
+          description: Event Api is offline or unable to receive incoming events
+        '504':
+          description: Timeout waiting for response

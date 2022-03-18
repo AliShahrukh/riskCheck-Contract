@@ -1,0 +1,474 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "version": "1.0.0",
+    "title": "Risk Contract",
+    "description": "Decision Service for risk"
+  },
+  "path": {},
+  "components": {
+    "schemas": {
+      "money": {
+        "properties": {
+          "baseCurrency": {
+            "enum": [
+              "USD"
+            ],
+            "type": "string",
+            "description": "This is set to USD"
+          },
+          "baseValue": {
+            "type": "number",
+            "description": "Value converted to USD"
+          },
+          "currency": {
+            "minLength": 1,
+            "type": "string",
+            "description": "This is three letter currency code"
+          },
+          "fxRate": {
+            "type": "number",
+            "description": "This is fx rate used to convert value"
+          },
+          "value": {
+            "type": "number",
+            "description": "The value of transaction in original currency"
+          }
+        },
+        "required": [
+          "currency",
+          "value",
+          "fxRate",
+          "baseValue",
+          "baseCurrency"
+        ],
+        "type": "object"
+      },
+      "address": {
+        "properties": {
+          "address1": {
+            "minLength": 1,
+            "type": "string",
+            "description": "First Line of address"
+          },
+          "address2": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Second Line of address"
+          },
+          "city": {
+            "minLength": 1,
+            "type": "string",
+            "description": "City name provided"
+          },
+          "countryCode": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Country Code provided"
+          },
+          "firstName": {
+            "minLength": 1,
+            "type": "string",
+            "description": "First Name of addressee"
+          },
+          "lastName": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Last Name of addressee"
+          },
+          "houseNumber": {
+            "minLength": 1,
+            "type": "string",
+            "description": "House number of address"
+          },
+          "state": {
+            "minLength": 1,
+            "type": "string",
+            "description": "State of address"
+          },
+          "postalCode": {
+            "minLength": 1,
+            "type": "string",
+            "description": "PostalCode of address"
+          }
+        },
+        "type": "object"
+      },
+      "travel": {
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "airlineName": {
+            "type": "string"
+          },
+          "passengerName": {
+            "type": "string"
+          },
+          "ticketCode": {
+            "type": "string"
+          },
+          "flightCode": {
+            "type": "string"
+          },
+          "departureAirport": {
+            "type": "string"
+          },
+          "arrivalAirport": {
+            "type": "string"
+          },
+          "departureDateTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "type": "object"
+      },
+      "RequestBase": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique Id for this message"
+          },
+          "eventType": {
+            "type": "string",
+            "enum": [
+              "beforeAuthenticationSync",
+              "beforeAuthorisationSync",
+              "afterAuthorisationSync",
+              "afterAuthorisationASync",
+              "afterAuthenticationASync"
+            ]
+          },
+          "schemaVersion": {
+            "type": "string",
+            "enum": [
+              "1.1",
+              "1.2",
+              "1.3",
+              "1.4"
+            ]
+          }
+        }
+      },
+      "RequestBeforeAuthentication": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RequestBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "$ref": "#/components/schemas/money"
+              },
+              "shippingAddress": {
+                "$ref": "#/components/schemas/address"
+              },
+              "airline": {
+                "$ref": "#/components/schemas/travel"
+              },
+              "customNumberField1": {
+                "type": "number"
+              },
+              "customNumberField2": {
+                "type": "number"
+              },
+              "customNumberField3": {
+                "type": "number"
+              },
+              "customNumberField4": {
+                "type": "number"
+              },
+              "customNumberField5": {
+                "type": "number"
+              },
+              "customStringField1": {
+                "type": "string"
+              },
+              "customStringField2": {
+                "type": "string"
+              },
+              "customStringField3": {
+                "type": "string"
+              },
+              "customStringField4": {
+                "type": "string"
+              },
+              "customStringField5": {
+                "type": "string"
+              },
+              "interactionType": {
+                "type": "string",
+                "description": "Value representing the type of sales",
+                "enum": [
+                  "ECOMMERCE",
+                  "AUTH",
+                  "MOTO",
+                  "3D_SECURE"
+                ]
+              },
+              "mcc": {
+                "type": "string",
+                "description": "Static or Dynamic merchant code",
+                "minLength": 1
+              },
+              "paymentId": {
+                "type": "string",
+                "description": "Payment Id of the source system",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "amount",
+              "shippingAddress",
+              "airline"
+            ]
+          }
+        ]
+      },
+      "RequestAfterAuthentication": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RequestBeforeAuthentication"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "RequestAfterAuthorisation": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RequestBeforeAuthentication"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "paymentStatus": {
+                "description": "Status of payment",
+                "type": "string",
+                "enum": [
+                  "AUTHORISED",
+                  "REFUSED",
+                  "ERROR",
+                  "CANCELLED"
+                ]
+              }
+            },
+            "required": [
+              "paymentStatus",
+              "paymentId"
+            ]
+          }
+        ]
+      },
+      "RequestBeforeAuthorisation": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RequestAfterAuthentication"
+          }
+        ]
+      },
+      "RequestBatch": {
+        "type": "object",
+        "properties": {
+          "runType": {
+            "type": "string",
+            "enum": [
+              "batch"
+            ]
+          },
+          "jsonEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RequestBase"
+            }
+          }
+        },
+        "required": [
+          "runType",
+          "jsonEvents"
+        ]
+      },
+      "aggregatedScore": {
+        "type": "object",
+        "description": "The overall risk score",
+        "properties": {
+          "aggregationModel": {
+            "type": "string",
+            "description": "Unique Identifier of the aggregation model"
+          },
+          "overallScore": {
+            "type": "string",
+            "description": "The overall risk score event/entity combinations"
+          }
+        }
+      },
+      "tag": {
+        "type": "string",
+        "description": "Tag assigned by the model",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "description": "Tag namespace"
+          },
+          "values": {
+            "type": "arrays",
+            "description": "Values within the namespace assigned to this event/entity",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "model": {
+        "type": "object",
+        "properties": {
+          "modelId": {
+            "type": "string",
+            "description": "The unique identifier"
+          },
+          "modelName": {
+            "type": "string",
+            "description": "Name of the model"
+          },
+          "score": {
+            "type": "number",
+            "description": "Risk Score",
+            "example": 0.22941
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Confidence associated"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/tag"
+            }
+          }
+        }
+      },
+      "entity": {
+        "type": "objects",
+        "properties": {
+          "entityType": {
+            "type": "string",
+            "description": "Entity Type"
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Entity Id"
+          },
+          "overallScore": {
+            "$ref": "#/components/schemas/aggregatedScore"
+          },
+          "models": {
+            "type": "array",
+            "description": "Output of all models",
+            "items": {
+              "$ref": "#/components/schemas/model"
+            }
+          },
+          "failedModels": {
+            "type": "array",
+            "description": "Output of all models",
+            "items": {
+              "type": "string"
+            }
+          },
+          "outputTags": {
+            "type": "array",
+            "description": "Output of all tags",
+            "items": {
+              "$ref": "#/components/schemas/tag"
+            }
+          },
+          "triggeredRules": {
+            "type": "array",
+            "description": "Output of all triggered rules",
+            "items": {
+              "$ref": "string"
+            }
+          },
+          "riskStatus": {
+            "type": "string",
+            "description": "review, risk-no-review, "
+          }
+        }
+      },
+      "ResponseObject": {
+        "type": "object",
+        "description": "The standard response",
+        "properties": {
+          "entities": {
+            "type": "array",
+            "description": "Details of the response generated",
+            "items": {
+              "$ref": "#/components/schemas/entity"
+            }
+          },
+          "originatingEvent": {
+            "type": "object",
+            "description": "Full event payload of the original event"
+          },
+          "outputTime": {
+            "type": "string",
+            "description": "Time when response was generated"
+          },
+          "processorId": {
+            "type": "string",
+            "description": "Identifier of the processor that processed event"
+          },
+          "statusCode": {
+            "type": "string",
+            "description": "Event was processed successfully or not."
+          }
+        }
+      },
+      "ResponseBatchFailureItem": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "reattempt": {
+            "type": "string"
+          }
+        }
+      },
+      "ResponseBatch": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "failCount": {
+            "type": "string"
+          },
+          "submitCount": {
+            "type": "string"
+          },
+          "failures": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResponseBatchFailureItem"
+            }
+          }
+        }
+      }
+    }
+  }
+}
